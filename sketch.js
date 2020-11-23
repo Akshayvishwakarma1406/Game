@@ -1,10 +1,9 @@
 var blockR,blockL;
-var box,ground;
-var Ypos = 800;
-var blockR1;
-var blockG;
+var box,ground,ground1;
+var Ypos ;
+var blockR1,blockG;
 var bg1,bg2,M1,M2,M3;
-var back;
+var back, gameState,score;
 
 function preload(){
 	bg1 = loadImage("images/background.jpg");
@@ -12,20 +11,28 @@ function preload(){
 	M1 = loadImage("images/Monster1.png");
 	M2 = loadImage("images/Monster2.png");
 	M3 = loadImage("images/Monster3.png");
+	Brick = loadImage("images/brick.png");
+	groundimg = loadImage("images/ground.png");
 }
 
 function setup() {
-	createCanvas(500, 800);
-	back = createSprite(250,400,500,800);
+	createCanvas(windowWidth, windowHeight);
+	back = createSprite(windowWidth/2,windowHeight/2,windowWidth,windowHeight);
 	back.scale = 3;
 	back.addImage("BG1",bg2);
-	box = createSprite(250,250,50,50);
+	box = createSprite(windowWidth/2,windowHeight-20,50,50);
 	box.addImage(M3);
 	box.scale = 0.45;
-	ground = createSprite(250,795,500,10);
+	ground = createSprite(windowWidth/2,windowHeight-10,windowWidth,10);
+	ground.addImage(groundimg);
+	ground.scale = 0.09;
 	ground.shapeColor = color("red");
+	ground1 = createSprite(windowWidth/2,windowHeight-10,windowWidth,10);
+	ground1.visible = false;
 	blockG = new Group();
-
+Ypos = windowHeight;
+gameState = "start";
+score = 0;
 
 }
 
@@ -37,45 +44,67 @@ function draw() {
 		back.y = 400;
 	}
 
-	// box.setCollider("rectangle", 0, 0, 60, 80);
+	box.setCollider("rectangle", 0, 0, 60, 80);
+//	if(gameState =="play")
 	spawnblocks();
-	if(keyDown("up") ){
-		box.velocityY = box.velocityY - 5;
+	if(touches.length > 0 || keyDown("up") ){
+		box.velocityY = - 5;
+        gameState = "play";
+        touches = [];
 	}
-	box.velocityY = box.velocityY + 0.2;
-
-	// for (i = 0; i <= blockG.length; i++){
-	// 	if(blockG[i].isTouching(box)){
-	// 		blockG[i].velocityX = 0;
-	// 		console.log(blockG[i]);
-	// 	}
-	// }
-	box.collide(ground);
-	drawSprites();
+	box.velocityY = box.velocityY + 0.8;
+if(keyDown("left"))
+{
+	box.velocityX = -2;
 }
+if(keyDown("right"))
+{
+	box.velocityX = 2;
+}
+camera.position.x = box.y;
+camera.position.x = windowWidth/2;
+box.collide(ground);
+drawSprites();
+if(gameState === "end")
+{
+	textSize(40);
+		fill("red");
+		text ("GAME OVER",windowWidth/2,windowHeight/2);
+}
+textSize(50);
+fill("red");
+text("Score:-" + score,20,50);
+}	
+	
 
 function spawnblocks (){
 	//Right side 
 	if(frameCount % 50 === 0){
 	Ypos=Ypos-20;
-	blockR = createSprite(510,Ypos,90,5);
+	blockR = createSprite(windowWidth,Ypos,90,5);
+	blockR.addImage(Brick);
+	score++
 	blockR.velocityX = -6;
-	// blockR.debug = true;
+	blockR.debug = true;
 	blockG.add(blockR);
-	console.log(blockG);
+	//console.log(blockG);
+	}
 	for (i = 0; i < blockG.length; i++){
 		if(blockG[i].isTouching(box)){
-			box.collide(blockG[i]);
-			blockG[i].velocityX = 0;
-			var test1 = createSprite(blockG[i].x,blockG[i].y,100,10);
-			// test1.addImage(M2);
-			box.collide(test1);
-			box.y = blockG[i].y - 50;
-			box.x = blockG[i].x;
-			console.log(box.y);
-		}
-	}
 		
+			blockG[i].velocityX = 0;
+		
+			box.y = blockG[i].y -50;
+	console.log("touching");
+		}
+		else
+		{if(box.y >=545)
+		gameState = "end";
+		console.log(box.y);
 	}
+	
+	}
+	
+
 }
 
